@@ -52,18 +52,22 @@ class RoleService:
             role_name: str,
             permission_names: list[str]
     ) -> Role:
-        role = await self.role_repository.create_role(name=role_name)
-        permissions = await self.permission_repository.get_permissions_by_names(permission_names)
+        # Starting Transaction
+        # Implied that later this codebase is refactored with the use of UoW pattern
+        # As for now, the violation of Clean Architecture is intentional
+        # So that we keep our transaction atomic
+        async with self.role_repository.db_session.begin():
+            role = await self.role_repository.create_role(name=role_name)
+            permissions = await self.permission_repository.get_permissions_by_names(permission_names)
 
-        if len(permissions) != len(permission_names):
-            found_names = {p.name for p in permissions}
-            missing = set(permission_names) - found_names
-            raise HTTPException(
-                status_code=404,
-                detail=f"Permissions not found: {', '.join(missing)}"
-            )
+            if len(permissions) != len(permission_names):
+                found_names = {p.name for p in permissions}
+                missing = set(permission_names) - found_names
+                raise HTTPException(
+                    status_code=404,
+                    detail=f"Permissions not found: {', '.join(missing)}"
+                )
 
-        if permissions:
             await self.role_repository.add_permissions_to_role(
                 role_id=role.role_id,
                 permission_ids=[p.permission_id for p in permissions]

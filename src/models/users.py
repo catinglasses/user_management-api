@@ -14,6 +14,5 @@ class User(Base):
     email: Mapped[str] = mapped_column(unique=True, nullable=False)
     password_hash: Mapped[str] = mapped_column(nullable=False)
     backup_email: Mapped[str] = mapped_column(unique=True, nullable=True)
-    is_admin: Mapped[bool] = mapped_column(default=False)
 
     roles: Mapped[list['UserRole']] = relationship('UserRole', back_populates='user')

@@ -1,14 +1,12 @@
-from uuid import UUID
-from fastapi import Depends, HTTPException
+from fastapi import Depends
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.models.users import User
 from src.models.database import get_db
 from src.services.user_service import UserService
 from src.repositories.user_repository import UserRepository
-from src.models.roles import Role, UserRole, Permission, RolePermission
 from src.services.role_service import RoleService, UserRoleService, PermissionService
-from src.services.auth_service import TokenService, PasswordManager, UserAuthenticationManager
+from src.services.auth_service import TokenService, PasswordManager, UserAuthenticationManager, oauth2_scheme
 from src.repositories.role_repository import RoleRepository, UserRoleRepository, PermissionRepository
 
 async def get_user_repository(
@@ -93,3 +91,9 @@ async def get_user_role_service(
         user_role_repository=user_role_repository,
         role_repository=role_repository
     )
+
+async def get_current_user(
+        token: str = Depends(oauth2_scheme),
+        token_service: TokenService = Depends(get_token_service)
+) -> User:
+    return await token_service.get_current_user(token)

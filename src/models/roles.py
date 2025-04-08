@@ -56,4 +56,4 @@ class UserRole(Base):
     )
 
     user: Mapped['User'] = relationship('User', back_populates='roles')
-    role: Mapped['Role'] = relationship('Roles', back_populates='users')
+    role: Mapped['Role'] = relationship('Role', back_populates='users')

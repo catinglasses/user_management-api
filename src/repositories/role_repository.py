@@ -56,8 +56,7 @@ class RoleRepository:
         """Create a new role in the database."""
         role = Role(role_name=name)
         self.db_session.add(role)
-        await self.db_session.commit()
-        await self.db_session.refresh()
+        await self.db_session.flush()
         return role
 
     async def _get_role(self, criteria) -> Role:
